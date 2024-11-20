@@ -1,0 +1,60 @@
+pulse: 150/150 us
+silence: 1300 us
+
+PIO cycle = 50 us
+pulse: 3/3
+silence: 26
+
+side-set 1
+delay = 4 (0 a 15)
+
+version 1:
+
+GET_BIT:
+  OUT X
+  JMP !X, ZERO
+  SET Y,8
+PULSE_1:
+  NOP SIDE 1 [2]
+  NOP SIDE 0 [1]
+  JMP !Y, PULSE_1
+  NOP [15]
+  JMP GET_BIT [6]
+ZERO:
+  SET Y,3
+PULSE_0:
+  NOP SIDE 1 [2]
+  NOP SIDE 0 [1]
+  JMP !Y, PULSE_0
+  NOP [15] 
+  JMP GET_BIT [6]
+
+version 2:
+
+GET_BIT:
+  OUT X [6]            ; 7 silence
+  SET Y,4              ; 1 silence
+  JMP !X, PULSE_TEST   ; 1 silence
+  SET Y,8              ; 1 silence
+PULSE:
+  NOP SIDE 1 [2]       ; 3 on
+  NOP SIDE 0 [1]       ; 2 off
+PULSE_TEST:
+  JMP !Y, PULSE        ; 1 off
+  JMP GET_BIT [15]     ; 16 silence
+
+version 3:
+
+.wrap_target
+GET_BIT:
+  OUT X [7]            ; 8 silence
+  SET Y,4 [15]         ; 16 silence
+  JMP !X, PULSE_TEST   ; 1 silence
+  SET Y,8              ; 1 silence
+PULSE:
+  NOP SIDE 1 [2]       ; 3 on
+  NOP SIDE 0 [1]       ; 2 off
+PULSE_TEST:
+  JMP !Y, PULSE        ; 1 off
+.wrap
+

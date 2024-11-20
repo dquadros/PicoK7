@@ -1,0 +1,23 @@
+.program k7
+.side_set 1
+
+.wrap_target
+
+;  PIO cycle time is 50us
+;  silence between bits is 26 cycles = 1300us
+;  pulses are 3 cycles high / 3 cycles low = 150us / 150us
+;  bit 0 generates 4 pulses, bit 1 generates 9 pulses
+
+GET_BIT:
+  OUT X,1             SIDE 1   [7]  ; 8 silence
+  SET Y,4             SIDE 1   [15] ; 16 silence
+  JMP !X, PULSE_TEST  SIDE 1        ; 1 silence
+  SET Y,8             SIDE 1        ; 1 silence
+PULSE:
+  NOP                 SIDE 0   [2]  ; 3 on
+  NOP                 SIDE 1   [1]  ; 2 off
+PULSE_TEST:
+  JMP Y--, PULSE     SIDE 1        ; 1 off
+
+.wrap
+
